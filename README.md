@@ -54,6 +54,8 @@ Run the desktop UI directly:
 python3 tools/claude_ip_guard_app.py
 ```
 
+On first launch, click `设置` and replace the placeholder/empty allowed IP list with your own Claude egress IP. Claude IP Guard does not ship with a real safe IP.
+
 Run the command-line checker:
 
 ```bash
@@ -84,6 +86,8 @@ Click `设置` in the desktop app to configure:
 - Claude AI egress IP check
 
 The first allowed IP is treated as the default IP. Additional IPs are accepted as safe fallback egresses.
+
+The IP values are fully user-configurable. The repository only uses documentation example IPs such as `203.0.113.10`; replace them with your own fixed Claude egress IP before relying on the check.
 
 Settings are saved locally:
 
@@ -116,6 +120,8 @@ export CLAUDE_IP_GUARD_PROXY="http://127.0.0.1:7897"
 export CLAUDE_IP_GUARD_IP="203.0.113.10"
 export CLAUDE_IP_GUARD_COUNTRY="US"
 ```
+
+If `CLAUDE_IP_GUARD_IP` is not set and no desktop settings have been saved, the app will ask you to configure an allowed IP before running a check.
 
 ## Development
 

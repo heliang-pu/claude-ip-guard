@@ -102,6 +102,16 @@ def test_build_error_model_uses_red_status_symbol():
     assert "request failed" in model.details
 
 
+def test_build_setup_required_model_tells_user_to_configure_ip():
+    app, _ = load_modules()
+
+    model = app.build_setup_required_model()
+
+    assert model.state == "setup_required"
+    assert "需要先设置允许 IP" in model.title
+    assert "设置" in model.details
+
+
 def test_build_display_rows_puts_status_subtitle_and_details_in_button_safe_rows():
     app, _ = load_modules()
     model = app.StatusModel(
@@ -130,7 +140,7 @@ def test_app_uses_hardcoded_guard_defaults(tmp_path):
     app, guard = load_modules()
 
     assert guard.DEFAULT_PROXY == "http://127.0.0.1:7897"
-    assert guard.DEFAULT_EXPECTED_IP == "203.0.113.10"
+    assert guard.DEFAULT_EXPECTED_IP == ""
     assert guard.DEFAULT_EXPECTED_COUNTRY == "US"
 
 

@@ -18,7 +18,7 @@ from typing import NamedTuple
 
 
 DEFAULT_PROXY = os.environ.get("CLAUDE_IP_GUARD_PROXY", "http://127.0.0.1:7897")
-DEFAULT_EXPECTED_IP = os.environ.get("CLAUDE_IP_GUARD_IP", "203.0.113.10")
+DEFAULT_EXPECTED_IP = os.environ.get("CLAUDE_IP_GUARD_IP", "").strip()
 DEFAULT_EXPECTED_COUNTRY = os.environ.get("CLAUDE_IP_GUARD_COUNTRY", "US")
 IP_API_URL = (
     "http://ip-api.com/json"
@@ -76,6 +76,13 @@ def normalize_expected_ips(expected_ip: str) -> list[str]:
         for part in expected_ip.replace("\n", ",").split(",")
         if part.strip()
     ]
+
+
+def require_expected_ips(expected_ip: str) -> list[str]:
+    expected_ips = normalize_expected_ips(expected_ip)
+    if not expected_ips:
+        raise RuntimeError("expected IP is not configured")
+    return expected_ips
 
 
 def expected_ip_label(expected_ips: list[str]) -> str:
@@ -172,7 +179,7 @@ def evaluate_result(
     expected_ip: str,
     expected_country: str,
 ) -> Decision:
-    expected_ips = normalize_expected_ips(expected_ip)
+    expected_ips = require_expected_ips(expected_ip)
     expected_country = expected_country.strip().upper()
     if expected_ips and result.ip not in expected_ips:
         return Decision(
@@ -195,7 +202,7 @@ def evaluate_trace(
     expected_ip: str,
     expected_country: str,
 ) -> Decision:
-    expected_ips = normalize_expected_ips(expected_ip)
+    expected_ips = require_expected_ips(expected_ip)
     expected_country = expected_country.strip().upper()
     if expected_ips and trace.ip not in expected_ips:
         return Decision(
@@ -287,8 +294,8 @@ def check_proxy(
         https_ip = parse_plain_ip(
             fetch_with_retries(HTTPS_IP_URL, proxy=proxy, timeout=timeout, retries=retries)
         )
-        expected_ips = normalize_expected_ips(expected_ip)
-        if expected_ips and https_ip not in expected_ips:
+        expected_ips = require_expected_ips(expected_ip)
+        if https_ip not in expected_ips:
             return (
                 Decision(
                     safe=False,

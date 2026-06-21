@@ -214,6 +214,15 @@ def build_checking_model() -> StatusModel:
     )
 
 
+def build_setup_required_model() -> StatusModel:
+    return StatusModel(
+        state="setup_required",
+        title="🟡 需要先设置允许 IP",
+        details="点击设置，填写你的 Claude 出口 IP。第一行会作为默认 IP。",
+        color="#b45309",
+    )
+
+
 class ClaudeIpGuardApp:
     def __init__(self):
         import tkinter as tk
@@ -235,8 +244,11 @@ class ClaudeIpGuardApp:
         self.display_buttons = []
 
         self._build_ui()
-        self.apply_model(build_checking_model())
-        self.root.after(200, self.run_check)
+        if self.settings.expected_ip:
+            self.apply_model(build_checking_model())
+            self.root.after(200, self.run_check)
+        else:
+            self.apply_model(build_setup_required_model())
         self.root.after(100, self.consume_results)
 
     def _build_ui(self):
@@ -320,6 +332,9 @@ class ClaudeIpGuardApp:
         self.check_button.configure(state="normal")
 
     def run_check(self):
+        if not self.settings.expected_ip:
+            self.apply_model(build_setup_required_model())
+            return
         self.apply_model(build_checking_model())
         self.check_button.configure(state="disabled")
 

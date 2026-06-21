@@ -66,6 +66,27 @@ def test_decision_rejects_same_country_wrong_ip():
     assert "expected IP 203.0.113.10" in decision.reason
 
 
+def test_decision_requires_configured_expected_ip():
+    guard = load_module()
+    result = guard.IpCheckResult(
+        ip="203.0.113.10",
+        country_code="US",
+        country="United States",
+        region="New Jersey",
+        city="Hackensack",
+        isp="Example ISP",
+        org="Example Org",
+        source="ip-api",
+    )
+
+    try:
+        guard.evaluate_result(result, expected_ip="", expected_country="US")
+    except RuntimeError as exc:
+        assert "expected IP is not configured" in str(exc)
+    else:
+        raise AssertionError("empty expected IP should not be accepted")
+
+
 def test_decision_accepts_any_configured_expected_ip():
     guard = load_module()
     result = guard.IpCheckResult(
