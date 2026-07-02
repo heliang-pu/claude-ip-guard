@@ -1,149 +1,59 @@
-# Claude IP Guard
+# Claude IP Guard iOS
 
-A lightweight desktop guard that verifies your Claude egress IP, risk score, and proxy safety before opening Claude Code.
+这是 `ios` 分支，专门放 iPhone 版 Claude IP Guard。
 
-Claude IP Guard is intentionally strict: if it cannot prove that your Claude traffic exits through a configured safe IP, it shows `UNSAFE` or `ERROR` so you can avoid opening Claude Code from the wrong network path.
+这个版本会在手机上检测当前出口 IP、Claude AI 出口 IP、国家/地区、HTTPS 二次校验和风险信息。只有检测结果符合配置时，才会显示 `SAFE - 可以打开 Claude`。
 
-## Screenshots
+> `main` 分支是桌面版说明；这个分支的 README 是 iOS 版说明。
 
-The public IPs in these screenshots are intentionally masked.
+## 截图
 
-Checking state:
+首页检测通过：
 
-![Claude IP Guard checking state](assets/screenshots/checking-masked.png)
+<img src="docs/ios/home-safe.png" alt="Claude IP Guard iOS 首页检测通过" width="360">
 
-Safe state with IP risk details:
+设置页：
 
-![Claude IP Guard safe state](assets/screenshots/safe-masked.png)
+<img src="docs/ios/settings.png" alt="Claude IP Guard iOS 设置页" width="360">
 
-## Features
+## 当前默认设置
 
-- Checks the default proxy egress IP.
-- Checks the Claude-specific egress IP via `claude.ai/cdn-cgi/trace`.
-- Supports one default IP plus multiple allowed fallback IPs.
-- Verifies country/region code, such as `US`.
-- Optionally verifies HTTPS egress with `ifconfig.me`.
-- Shows supplemental IP risk data:
-  - Trust Score
-  - Residential/datacenter type
-  - ASN and ASN organization
-  - VPN, proxy, Tor, crawler, and abuse flags
-- Includes a small Tkinter desktop UI for macOS and Linux.
-- Builds a lightweight macOS `.app` bundle.
-- Includes a SwiftUI iOS app under `ios/ClaudeIPGuard/`, with the same app icon as the desktop build.
+iOS 版已经按你的手机使用方式预置：
 
-## When Is It Safe?
+- 出口 IP：`38.15.0.237`
+- 国家/地区：`US`
+- 代理：留空
 
-Open Claude Code only when the app shows `SAFE - 可以打开 Claude`.
+代理留空表示直接使用 iPhone 当前网络，包括蜂窝数据、手机 Wi-Fi 或系统 VPN。手机上跑的时候不依赖 Mac 的本地代理。
 
-The safest result usually looks like this:
+## 怎么装到 iPhone
 
-- `Claude AI IP` matches your configured allowed IP.
-- Country code matches your expected country, for example `US`.
-- `Default IP`, `Claude AI IP`, and `HTTPS IP` are consistent.
-- `Trust Score` is high, ideally `80+`.
-- `IP Type` is `家庭住宅IP` or another trusted clean static egress.
-- `VPN`, `Proxy`, `Tor`, `Crawler`, and `Abuse` are all `no`.
+1. 用 Mac 打开 `ios/ClaudeIPGuard/ClaudeIPGuard.xcodeproj`。
+2. iPhone 用数据线连接 Mac，并在手机上点信任。
+3. Xcode 顶部运行目标选择你的 iPhone。
+4. 在 Signing & Capabilities 里选择你的 Apple 开发者 Team。
+5. 点运行按钮安装到手机。
+6. 第一次打开如果 iPhone 提示信任开发者，到 `设置 -> 通用 -> VPN 与设备管理` 里信任你的开发者证书。
 
-If the app shows `ERROR` or `UNSAFE`, do not open Claude Code until the network/proxy route is fixed.
+## 使用方式
 
-## Quick Start
+打开 App 后点 `重新检测`。
 
-Run the desktop UI directly:
+看到 `SAFE - 可以打开 Claude` 时，表示当前手机出口 IP 和配置匹配。看到 `UNSAFE` 或 `ERROR` 时，不建议打开 Claude，先检查当前手机网络、VPN 或出口 IP。
 
-```bash
-python3 tools/claude_ip_guard_app.py
-```
+点 `设置` 可以修改：
 
-On first launch, click `设置` and replace the placeholder/empty allowed IP list with your own Claude egress IP. Claude IP Guard does not ship with a real safe IP.
+- 出口 IP
+- 代理
+- 国家/地区
+- 超时时间
+- 重试次数
+- HTTPS 二次校验
+- Claude AI 出口 IP 校验
 
-The iOS app is currently preconfigured for the author's safe egress IP, `38.15.0.237` in `US`, and uses the phone's current network by default. Change this before relying on it for any other route.
+## 本地验证
 
-Run the command-line checker:
-
-```bash
-python3 tools/claude_ip_guard.py \
-  --proxy http://127.0.0.1:7897 \
-  --expected-ip 203.0.113.10 \
-  --expected-country US
-```
-
-Multiple allowed IPs can be separated by commas:
-
-```bash
-python3 tools/claude_ip_guard.py \
-  --expected-ip "203.0.113.10,203.0.113.11" \
-  --expected-country US
-```
-
-## Desktop Settings
-
-Click `设置` in the desktop app to configure:
-
-- Proxy URL
-- Allowed IPs
-- Expected country code
-- Timeout
-- Retry count
-- HTTPS secondary check
-- Claude AI egress IP check
-
-The first allowed IP is treated as the default IP. Additional IPs are accepted as safe fallback egresses.
-
-The IP values are fully user-configurable. The repository only uses documentation example IPs such as `203.0.113.10`; replace them with your own fixed Claude egress IP before relying on the check.
-
-Settings are saved locally:
-
-```text
-~/.claude-ip-guard/settings.json
-```
-
-## Build The App Bundle
-
-Build the macOS app bundle and Linux launcher:
-
-```bash
-python3 tools/build_claude_ip_guard_app.py
-```
-
-Outputs are written to `dist/`:
-
-- `dist/Claude IP Guard.app`
-- `dist/claude-ip-guard-linux/`
-- `dist/claude-ip-guard-linux.tar.gz`
-
-`dist/` is ignored by git because these files are generated artifacts.
-
-## Environment Defaults
-
-You can override defaults with environment variables:
-
-```bash
-export CLAUDE_IP_GUARD_PROXY="http://127.0.0.1:7897"
-export CLAUDE_IP_GUARD_IP="203.0.113.10"
-export CLAUDE_IP_GUARD_COUNTRY="US"
-```
-
-If `CLAUDE_IP_GUARD_IP` is not set and no desktop settings have been saved, the app will ask you to configure an allowed IP before running a check.
-
-## Development
-
-Run tests:
-
-```bash
-pytest -q
-```
-
-Compile-check the scripts:
-
-```bash
-python3 -m py_compile \
-  tools/claude_ip_guard.py \
-  tools/claude_ip_guard_app.py \
-  tools/build_claude_ip_guard_app.py
-```
-
-Check the iOS shared logic and SwiftUI target:
+不用完整 Xcode 也可以先验证 Swift 逻辑：
 
 ```bash
 cd ios/ClaudeIPGuard
@@ -151,17 +61,23 @@ swift run ClaudeIPGuardCoreSmokeTests
 swift build --target ClaudeIPGuardApp
 ```
 
-## Data Sources
+用 Xcode 命令行构建 iOS 工程：
 
-Claude IP Guard uses several public endpoints during checks:
+```bash
+cd ios/ClaudeIPGuard
+xcodebuild -project ClaudeIPGuard.xcodeproj \
+  -scheme ClaudeIPGuard \
+  -destination 'generic/platform=iOS' \
+  build
+```
 
-- `ip-api.com` for default IP geolocation
-- `claude.ai/cdn-cgi/trace` for Claude egress IP
-- `ifconfig.me` for HTTPS egress confirmation
-- `ip.net.coffee` public risk API for supplemental IP risk fields
+## 目录结构
 
-Risk data is advisory. The final access decision is always up to Claude's own service-side risk controls.
+- `ios/ClaudeIPGuard/App/`：SwiftUI 界面、设置页、ViewModel 和本地配置存储
+- `ios/ClaudeIPGuard/Shared/ClaudeIPGuardCore/`：检测、解析和 SAFE/UNSAFE 判断逻辑
+- `ios/ClaudeIPGuard/Tests/`：Swift 核心逻辑 smoke tests
+- `docs/ios/`：iOS README 截图
 
-## Disclaimer
+## 说明
 
-This tool does not bypass Claude restrictions, authentication, rate limits, or policy enforcement. It only helps you verify whether your current proxy/egress route matches the IP profile you intend to use before opening Claude Code.
+这个工具只做出口检测和风险提示，不绕过 Claude 的登录、风控、地区限制、速率限制或任何服务端策略。最终能不能使用 Claude，还是以 Claude 服务端实际判断为准。

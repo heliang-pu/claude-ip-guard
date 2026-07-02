@@ -1,45 +1,59 @@
-# Claude IP Guard for iOS
+# Claude IP Guard iOS 工程
 
-SwiftUI iOS version of the desktop Claude IP Guard.
+这是 Claude IP Guard 的 SwiftUI iOS 版本。
 
-## Run in Xcode
+## 默认配置
 
-1. Open `ClaudeIPGuard.xcodeproj`.
-2. Select the `ClaudeIPGuard` target.
-3. Set your Apple development team in Signing & Capabilities.
-4. Run on an iPhone simulator or device.
+App 默认配置为：
 
-The iOS app defaults to:
+- 出口 IP：`38.15.0.237`
+- 国家/地区：`US`
+- 代理：留空
 
-- Allowed IP: `38.15.0.237`
-- Country: `US`
-- Proxy: blank, which means the phone's current network, cellular route, or system VPN
+代理留空表示使用 iPhone 当前网络、蜂窝数据或系统 VPN。如果代理就在 iPhone 上运行，可以填写手机本地代理地址；如果代理在局域网其他设备上，需要填写手机能访问到的局域网代理地址。
 
-If the proxy is running on the iPhone itself, enter that local proxy URL. If the proxy is running on another device, enter that reachable LAN proxy URL. Leaving proxy blank is the right setting when the phone's cellular data or system VPN already provides the intended route.
+## Xcode 运行
 
-The app icon is generated from the desktop `tools/claude-ip-guard.png` asset.
+1. 打开 `ClaudeIPGuard.xcodeproj`。
+2. 选择 `ClaudeIPGuard` target。
+3. 在 Signing & Capabilities 里选择你的 Apple 开发者 Team。
+4. 顶部运行目标选择 iPhone 真机或模拟器。
+5. 点击运行。
 
-## Verify Without Full Xcode
+真机首次安装后，如果 iPhone 提示开发者未受信任，到 `设置 -> 通用 -> VPN 与设备管理` 里信任开发者证书。
 
-This directory also has a Swift Package so the shared logic and SwiftUI files can be checked with Command Line Tools:
+## 命令行验证
+
+这个目录也包含 Swift Package，可以不用完整 Xcode 先检查共享逻辑和 SwiftUI target：
 
 ```bash
 swift run ClaudeIPGuardCoreSmokeTests
 swift build --target ClaudeIPGuardApp
 ```
 
-## Structure
+构建 iOS 工程：
 
-- `App/`: SwiftUI app, settings sheet, view model, and local settings storage.
-- `Shared/ClaudeIPGuardCore/`: reusable parsing, network, and SAFE/UNSAFE decision logic.
-- `Tests/ClaudeIPGuardCoreTests/`: framework-free smoke tests for the shared core.
-- `Support/Info.plist`: iOS app metadata and the `ip-api.com` HTTP exception.
+```bash
+xcodebuild -project ClaudeIPGuard.xcodeproj \
+  -scheme ClaudeIPGuard \
+  -destination 'generic/platform=iOS' \
+  build
+```
 
-## Checks
+## 工程结构
 
-The iOS app performs the same core checks as the desktop tool:
+- `App/`：SwiftUI App、设置页、ViewModel、本地设置存储
+- `Shared/ClaudeIPGuardCore/`：解析、网络请求和 SAFE/UNSAFE 判断逻辑
+- `Tests/ClaudeIPGuardCoreTests/`：不依赖 XCTest 的核心逻辑 smoke tests
+- `Support/Info.plist`：iOS 元数据和 `ip-api.com` HTTP 例外
 
-- default egress IP through `ip-api.com`
-- Claude egress IP through `claude.ai/cdn-cgi/trace`
-- optional HTTPS egress through `ifconfig.me`
-- supplemental risk data through `ip.net.coffee`
+## 检测内容
+
+iOS 版和桌面版使用同一套核心判断思路：
+
+- 通过 `ip-api.com` 检测默认出口 IP
+- 通过 `claude.ai/cdn-cgi/trace` 检测 Claude AI 出口 IP
+- 可选通过 `ifconfig.me` 做 HTTPS 二次校验
+- 通过 `ip.net.coffee` 获取补充风险信息
+
+只有出口 IP、国家/地区和启用的二次校验都符合设置时，首页才会显示 `SAFE - 可以打开 Claude`。
