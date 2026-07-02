@@ -6,6 +6,11 @@
 
 > `main` 分支是桌面版说明；这个分支的 README 是 iOS 版说明。
 
+## 分支跳转
+
+- 当前：[`ios` 分支，iPhone 版](https://github.com/heliang-pu/claude-ip-guard/tree/ios)
+- 桌面版：[`main` 分支，macOS/Linux 版](https://github.com/heliang-pu/claude-ip-guard/tree/main)
+
 ## 截图
 
 首页检测通过：
