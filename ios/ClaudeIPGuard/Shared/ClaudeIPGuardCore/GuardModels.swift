@@ -36,7 +36,7 @@ public enum GuardError: Error, Equatable, CustomStringConvertible {
 }
 
 public struct GuardSettings: Codable, Equatable, Sendable {
-    public static let defaultAllowedIPsText = "38.15.0.237"
+    public static let defaultAllowedIPsText = ""
     public static let legacyLocalProxy = "http://127.0.0.1:7897"
 
     public var proxy: String

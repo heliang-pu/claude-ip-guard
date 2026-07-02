@@ -7,7 +7,7 @@ struct ClaudeIPGuardCoreSmokeTests {
         try run("IP API parser extracts identity", ipAPIParserExtractsIdentity)
         try run("Cloudflare trace parser extracts Claude IP and country", cloudflareTraceParserExtractsClaudeIPAndCountry)
         try run("IP risk parser extracts type and security flags", ipRiskParserExtractsTypeAndSecurityFlags)
-        try run("Default settings hardcode the safe Claude egress IP", defaultSettingsHardcodeSafeClaudeEgressIP)
+        try run("Default settings start without a bundled safe IP", defaultSettingsStartWithoutBundledSafeIP)
         try run("Settings normalize allowed IPs and build subtitle", settingsNormalizesAllowedIPsAndBuildsSubtitle)
         try run("Settings default to phone network when proxy is blank", settingsDefaultToPhoneNetworkWhenProxyIsBlank)
         try run("Evaluator builds safe status rows when all checks match", evaluatorBuildsSafeStatusRowsWhenAllChecksMatch)
@@ -22,10 +22,10 @@ struct ClaudeIPGuardCoreSmokeTests {
           "query": "203.0.113.10",
           "countryCode": "US",
           "country": "United States",
-          "regionName": "New Jersey",
-          "city": "Hackensack",
-          "isp": "Cogent Communications",
-          "org": "Fiberpower LLC"
+          "regionName": "Example Region",
+          "city": "Example City",
+          "isp": "Example ISP",
+          "org": "Example Org"
         }
         """.utf8)
 
@@ -34,10 +34,10 @@ struct ClaudeIPGuardCoreSmokeTests {
         try expect(identity.ip == "203.0.113.10")
         try expect(identity.countryCode == "US")
         try expect(identity.country == "United States")
-        try expect(identity.region == "New Jersey")
-        try expect(identity.city == "Hackensack")
-        try expect(identity.isp == "Cogent Communications")
-        try expect(identity.org == "Fiberpower LLC")
+        try expect(identity.region == "Example Region")
+        try expect(identity.city == "Example City")
+        try expect(identity.isp == "Example ISP")
+        try expect(identity.org == "Example Org")
     }
 
     static func cloudflareTraceParserExtractsClaudeIPAndCountry() throws {
@@ -63,7 +63,7 @@ struct ClaudeIPGuardCoreSmokeTests {
           "is_abuser": false,
           "company_type": "isp",
           "asn": 174,
-          "asOrganization": "Cogent Communications, LLC",
+          "asOrganization": "Example Network, LLC",
           "trust_score": 90
         }
         """.utf8)
@@ -75,20 +75,20 @@ struct ClaudeIPGuardCoreSmokeTests {
         try expect(risk.ipTypeLabel == "家庭住宅IP")
         try expect(risk.companyType == "isp")
         try expect(risk.asn == 174)
-        try expect(risk.asOrganization == "Cogent Communications, LLC")
+        try expect(risk.asOrganization == "Example Network, LLC")
         try expect(risk.isVPN == false)
         try expect(risk.isProxy == false)
         try expect(risk.isTor == false)
     }
 
-    static func defaultSettingsHardcodeSafeClaudeEgressIP() throws {
+    static func defaultSettingsStartWithoutBundledSafeIP() throws {
         let settings = GuardSettings()
 
         try expect(settings.proxy == "")
-        try expect(settings.allowedIPs == ["38.15.0.237"])
-        try expect(settings.defaultIP == "38.15.0.237")
+        try expect(settings.allowedIPs == [])
+        try expect(settings.defaultIP == "")
         try expect(settings.expectedCountry == "US")
-        try expect(settings.subtitle == "默认 IP: 38.15.0.237 / US    允许 1 个 IP    代理: 手机当前网络")
+        try expect(settings.subtitle == "默认 IP: 未设置 / US    允许 0 个 IP    代理: 手机当前网络")
     }
 
     static func settingsNormalizesAllowedIPsAndBuildsSubtitle() throws {
@@ -110,7 +110,7 @@ struct ClaudeIPGuardCoreSmokeTests {
 
     static func settingsDefaultToPhoneNetworkWhenProxyIsBlank() throws {
         let settings = GuardSettings(
-            allowedIPsText: "38.15.0.237",
+            allowedIPsText: "203.0.113.10",
             expectedCountry: "US",
             timeout: 10,
             retries: 1,
@@ -119,7 +119,7 @@ struct ClaudeIPGuardCoreSmokeTests {
         )
 
         try expect(settings.proxy == "")
-        try expect(settings.subtitle == "默认 IP: 38.15.0.237 / US    允许 1 个 IP    代理: 手机当前网络")
+        try expect(settings.subtitle == "默认 IP: 203.0.113.10 / US    允许 1 个 IP    代理: 手机当前网络")
     }
 
     static func evaluatorBuildsSafeStatusRowsWhenAllChecksMatch() throws {
@@ -136,10 +136,10 @@ struct ClaudeIPGuardCoreSmokeTests {
             ip: "203.0.113.11",
             countryCode: "US",
             country: "United States",
-            region: "New Jersey",
-            city: "Hackensack",
-            isp: "Cogent Communications",
-            org: "Fiberpower LLC",
+            region: "Example Region",
+            city: "Example City",
+            isp: "Example ISP",
+            org: "Example Org",
             source: "ip-api"
         )
         let trace = CloudflareTrace(ip: "203.0.113.11", countryCode: "US", source: "claude.ai/cdn-cgi/trace")
@@ -149,7 +149,7 @@ struct ClaudeIPGuardCoreSmokeTests {
             ipTypeLabel: "家庭住宅IP",
             companyType: "isp",
             asn: 174,
-            asOrganization: "Cogent Communications, LLC",
+            asOrganization: "Example Network, LLC",
             isVPN: false,
             isProxy: false,
             isTor: false,
@@ -192,10 +192,10 @@ struct ClaudeIPGuardCoreSmokeTests {
             ip: "203.0.113.10",
             countryCode: "US",
             country: "United States",
-            region: "New Jersey",
-            city: "Hackensack",
-            isp: "Cogent Communications",
-            org: "Fiberpower LLC",
+            region: "Example Region",
+            city: "Example City",
+            isp: "Example ISP",
+            org: "Example Org",
             source: "ip-api"
         )
         let trace = CloudflareTrace(ip: "216.227.169.92", countryCode: "US", source: "claude.ai/cdn-cgi/trace")

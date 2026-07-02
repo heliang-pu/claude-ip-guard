@@ -23,10 +23,10 @@ def test_build_status_model_marks_safe_state():
         ip="203.0.113.10",
         country_code="US",
         country="United States",
-        region="New Jersey",
-        city="Hackensack",
-        isp="Cogent Communications",
-        org="Fiberpower LLC",
+        region="Example Region",
+        city="Example City",
+        isp="Example ISP",
+        org="Example Org",
         source="ip-api",
     )
     decision = guard.Decision(True, guard.EXIT_SAFE, "static IP verified")
@@ -39,7 +39,7 @@ def test_build_status_model_marks_safe_state():
         ip_type_label="家庭住宅IP",
         company_type="isp",
         asn=174,
-        as_organization="Cogent Communications, LLC",
+        as_organization="Example Network, LLC",
         is_vpn=False,
         is_proxy=False,
         is_tor=False,

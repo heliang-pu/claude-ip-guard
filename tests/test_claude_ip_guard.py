@@ -17,14 +17,14 @@ def test_parse_ip_api_json_extracts_identity():
 
     result = guard.parse_ip_api_json(
         b'{"status":"success","query":"203.0.113.10","countryCode":"US",'
-        b'"country":"United States","regionName":"New Jersey","city":"Hackensack",'
-        b'"isp":"Cogent Communications","org":"Fiberpower LLC"}'
+        b'"country":"United States","regionName":"Example Region","city":"Example City",'
+        b'"isp":"Example ISP","org":"Example Org"}'
     )
 
     assert result.ip == "203.0.113.10"
     assert result.country_code == "US"
     assert result.country == "United States"
-    assert result.city == "Hackensack"
+    assert result.city == "Example City"
 
 
 def test_decision_is_safe_only_for_expected_static_us_ip():
@@ -33,10 +33,10 @@ def test_decision_is_safe_only_for_expected_static_us_ip():
         ip="203.0.113.10",
         country_code="US",
         country="United States",
-        region="New Jersey",
-        city="Hackensack",
-        isp="Cogent Communications",
-        org="Fiberpower LLC",
+        region="Example Region",
+        city="Example City",
+        isp="Example ISP",
+        org="Example Org",
         source="ip-api",
     )
 
@@ -72,8 +72,8 @@ def test_decision_requires_configured_expected_ip():
         ip="203.0.113.10",
         country_code="US",
         country="United States",
-        region="New Jersey",
-        city="Hackensack",
+        region="Example Region",
+        city="Example City",
         isp="Example ISP",
         org="Example Org",
         source="ip-api",
@@ -93,10 +93,10 @@ def test_decision_accepts_any_configured_expected_ip():
         ip="203.0.113.11",
         country_code="US",
         country="United States",
-        region="New Jersey",
-        city="Hackensack",
-        isp="Cogent Communications",
-        org="Fiberpower LLC",
+        region="Example Region",
+        city="Example City",
+        isp="Example ISP",
+        org="Example Org",
         source="ip-api",
     )
 
@@ -129,7 +129,7 @@ def test_parse_ip_risk_json_extracts_type_and_security_flags():
         b'{"ip":"203.0.113.10","is_datacenter":false,"isResidential":true,'
         b'"is_vpn":false,"is_proxy":false,"is_tor":false,"is_crawler":false,'
         b'"is_abuser":false,"company_type":"isp","asn":174,'
-        b'"asOrganization":"Cogent Communications, LLC","trust_score":90}'
+        b'"asOrganization":"Example Network, LLC","trust_score":90}'
     )
 
     assert risk.ip == "203.0.113.10"
@@ -146,10 +146,10 @@ def test_format_result_includes_claude_and_https_egress_ips():
         ip="203.0.113.10",
         country_code="US",
         country="United States",
-        region="New Jersey",
-        city="Hackensack",
-        isp="Cogent Communications",
-        org="Fiberpower LLC",
+        region="Example Region",
+        city="Example City",
+        isp="Example ISP",
+        org="Example Org",
         source="ip-api",
     )
     claude_trace = guard.CloudflareTrace(
@@ -171,7 +171,7 @@ def test_format_result_includes_claude_and_https_egress_ips():
             ip_type_label="家庭住宅IP",
             company_type="isp",
             asn=174,
-            as_organization="Cogent Communications, LLC",
+            as_organization="Example Network, LLC",
             is_vpn=False,
             is_proxy=False,
             is_tor=False,

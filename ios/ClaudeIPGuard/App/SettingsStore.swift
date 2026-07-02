@@ -20,13 +20,9 @@ struct SettingsStore {
             return GuardSettings()
         }
         let proxy = decoded.proxy == GuardSettings.legacyLocalProxy ? "" : decoded.proxy
-        let allowedIPsText = decoded.allowedIPs.isEmpty
-            ? GuardSettings.defaultAllowedIPsText
-            : decoded.allowedIPsText
-
         return GuardSettings(
             proxy: proxy,
-            allowedIPsText: allowedIPsText,
+            allowedIPsText: decoded.allowedIPsText,
             expectedCountry: decoded.expectedCountry,
             timeout: decoded.timeout,
             retries: decoded.retries,
