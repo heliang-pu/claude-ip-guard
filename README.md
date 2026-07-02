@@ -4,6 +4,11 @@ A lightweight desktop guard that verifies your Claude egress IP, risk score, and
 
 Claude IP Guard is intentionally strict: if it cannot prove that your Claude traffic exits through a configured safe IP, it shows `UNSAFE` or `ERROR` so you can avoid opening Claude Code from the wrong network path.
 
+## Branches
+
+- Current: [`main` branch, macOS/Linux desktop version](https://github.com/heliang-pu/claude-ip-guard/tree/main)
+- iPhone: [`ios` branch, SwiftUI iOS version](https://github.com/heliang-pu/claude-ip-guard/tree/ios)
+
 ## Screenshots
 
 The public IPs in these screenshots are intentionally masked.
