@@ -1,0 +1,43 @@
+import Foundation
+
+#if SWIFT_PACKAGE
+import ClaudeIPGuardCore
+#endif
+
+struct SettingsStore {
+    private let defaults: UserDefaults
+    private let key = "claude-ip-guard.settings"
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
+
+    func load() -> GuardSettings {
+        guard
+            let data = defaults.data(forKey: key),
+            let decoded = try? JSONDecoder().decode(GuardSettings.self, from: data)
+        else {
+            return GuardSettings()
+        }
+        let proxy = decoded.proxy == GuardSettings.legacyLocalProxy ? "" : decoded.proxy
+        let allowedIPsText = decoded.allowedIPs.isEmpty
+            ? GuardSettings.defaultAllowedIPsText
+            : decoded.allowedIPsText
+
+        return GuardSettings(
+            proxy: proxy,
+            allowedIPsText: allowedIPsText,
+            expectedCountry: decoded.expectedCountry,
+            timeout: decoded.timeout,
+            retries: decoded.retries,
+            httpsCheckEnabled: decoded.httpsCheckEnabled,
+            claudeTraceCheckEnabled: decoded.claudeTraceCheckEnabled
+        )
+    }
+
+    func save(_ settings: GuardSettings) {
+        if let data = try? JSONEncoder().encode(settings) {
+            defaults.set(data, forKey: key)
+        }
+    }
+}

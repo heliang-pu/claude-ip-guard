@@ -30,6 +30,7 @@ Safe state with IP risk details:
   - VPN, proxy, Tor, crawler, and abuse flags
 - Includes a small Tkinter desktop UI for macOS and Linux.
 - Builds a lightweight macOS `.app` bundle.
+- Includes a SwiftUI iOS app under `ios/ClaudeIPGuard/`, with the same app icon as the desktop build.
 
 ## When Is It Safe?
 
@@ -55,6 +56,8 @@ python3 tools/claude_ip_guard_app.py
 ```
 
 On first launch, click `设置` and replace the placeholder/empty allowed IP list with your own Claude egress IP. Claude IP Guard does not ship with a real safe IP.
+
+The iOS app is currently preconfigured for the author's safe egress IP, `38.15.0.237` in `US`, and uses the phone's current network by default. Change this before relying on it for any other route.
 
 Run the command-line checker:
 
@@ -138,6 +141,14 @@ python3 -m py_compile \
   tools/claude_ip_guard.py \
   tools/claude_ip_guard_app.py \
   tools/build_claude_ip_guard_app.py
+```
+
+Check the iOS shared logic and SwiftUI target:
+
+```bash
+cd ios/ClaudeIPGuard
+swift run ClaudeIPGuardCoreSmokeTests
+swift build --target ClaudeIPGuardApp
 ```
 
 ## Data Sources
